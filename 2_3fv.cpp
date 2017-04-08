@@ -82,7 +82,7 @@ public:
     void Resize();
     sizeT Count() const {return elementsInBuffer;}
     sizeT Allocated() const {return allocatedSize;}
-    T* GetPointer();
+    const T* GetPointer() const;
     void Sort(int comparator(const void *, const void *), sizeT b, sizeT e);
     void Swap(T *a, T* b) { T temp = *a; *a = *b, *b = temp; }
     const T& operator[] (sizeT i) const { return ptr[i]; }
@@ -156,7 +156,7 @@ void Array<T>::Resize()
 // }
 
 template <typename T>
-T *Array<T>::GetPointer()
+const T *Array<T>::GetPointer() const
 {
     return ptr;
 }
