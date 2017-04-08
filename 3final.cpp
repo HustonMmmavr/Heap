@@ -212,7 +212,7 @@ public:
     void Resize();
     sizeT Count() const {return elementsInBuffer;}
     sizeT Allocated() const {return allocatedSize;}
-    T* GetPointer();
+    const T* GetPointer() const;
     void Sort(int comparator(const void *, const void *), sizeT b, sizeT e);
     void Swap(T *a, T* b) { T temp = *a; *a = *b, *b = temp; }
     const T& operator[] (sizeT i) const { return ptr[i]; }
@@ -528,7 +528,7 @@ sizeT GetMax(LightArray<Event> &events)
 {
     sizeT max = 0;
     sizeT now = 0;
-    HeapSort(events);
+    HeapSort<Event, EventComparator)(events);
     int count = events.Count();
     for (int i = 0; i < count; i++)
     {
