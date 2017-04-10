@@ -72,8 +72,9 @@ template <typename T>
 LightArray<T>::LightArray()
 {
 	allocatedSize = 0;
-	ptr = new T[allocatedSize];
-	if (!ptr) ThrowException("Cant allocate memory");
+	ptr = NULL;
+	//ptr = new T[allocatedSize];
+	//if (!ptr) ThrowException("Cant allocate memory");
 	elementsInBuffer = 0;
 }
 
@@ -89,10 +90,17 @@ LightArray<T>::LightArray(sizeT sizeToAlloc)
 {
 	//if (sizeToAlloc < MIN_SIZE) sizeToAlloc = MIN_SIZE;
 	allocatedSize = sizeToAlloc;
-	ptr = new T[allocatedSize];
+	if (allocatedSize == 0)
+	{
+		ptr = NULL;
+	}
+	else
+	{
+		ptr = new T[allocatedSize];
 
-	if (!ptr)
-		ThrowException("cant allocate");
+		if (!ptr)
+			ThrowException("cant allocate");
+	}
 	elementsInBuffer = 0;
 }
 
@@ -143,6 +151,11 @@ LightArray<T>& LightArray<T>::operator = (const LightArray<T>& arr)
 	delete[] ptr;
 	allocatedSize = arr.allocatedSize;
 	elementsInBuffer = arr.elementsInBuffer;
+	if (allocatedSize == 0)
+	{
+		ptr = NULL;
+		return *this;
+	}
 	ptr = new T[allocatedSize];
 	if (!ptr) ThrowException("Cant alloc");
 	for (int i = 0; i < elementsInBuffer; i++)
@@ -181,74 +194,14 @@ inline void PrintArr(int *c, int size, FILE *f = stdin)
 	for (int i = 0; i < size; i++) fprintf(f, "%d\n", c[i]);
 }
 
-//#define TEST
 typedef LightArray<char> String;
-// void CountingSort(LightArray<String> &arr, LightArray<String> &addArr, int low, int high, int *c, int pos)
-// {
-// 	// Creating c arr
-// 	for (int i = low; i < high; i++)
-// 	{
-// 		if (pos < arr[i].Count())
-// 			c[arr[i][pos]]++;
-// 	}
-	
-// 	// Get granci
-// 	int sum = 0;
-// 	for (int i = 0; i < ALPH_SIZE; i++)
-// 	{
-// 		int tmp = c[i];
-// 		c[i] = sum;
-// 		sum += tmp;
-// 	}
-
-// 	for (int i = low; i < high; i++) // check size
-// 	{
-// 		if (pos < arr[i].Count())
-// 			addArr[c[arr[i][pos]]++ + low] = arr[i];
-// 	}
-// 	for (int i = low; i < high; i++)
-// 		arr[i] = addArr[i];
-// }
-// //
-// void MSDSort(LightArray<String> &arr, LightArray<String> &addArr, int left, int right, int pos)//vector<string> &arr)
-// {
-// #ifdef TEST
-// 	static int level = 0;
-// 	level += 1;
-// 	printf("%d\n", level);
-// #endif
-// 	int *c = new int[ALPH_SIZE +1];
-// 	memset(c, 0, (ALPH_SIZE +1)*sizeof(int));
-	
-// 	// int maxLen = -1;
-// 	// for (int i = left; i < right; i++)
-// 	// {
-// 	// 	if (maxLen < arr[i].Count()) maxLen = arr[i].Count();
-// 	// }
-
-// //	if (pos < maxLen)
-// 		CountingSort(arr, addArr, left, right, c, pos);
-// #ifdef TEST
-// 		for (int i = 0; i < arr.Count(); i++)
-// 			printf("%s\n", arr[i]);
-// 		printf("\n");
-// #endif
-// 		for (int i = 0; i < ALPH_SIZE; i++)
-// 		{
-// 			if (c[i] < c[i + 1])// && pos < maxLen)
-// 				MSDSort(arr, addArr, c[i] + left, c[i + 1] + left, pos + 1);
-// 		}
-// //	}
-
-// 	delete[] c;
-// }
 
 void MSDSort(LightArray<String> &arr, int lo, int hi, int pos)//, vector<string>::iterator last, int offset) {
 {
    	LightArray<LightArray<String> > buf(ALPH_SIZE);
    	for (int i = lo; i < hi; i++)
-   		if (pos < arr[i].Count())
-			buf[arr[i][pos]].PushBack(arr[i]);
+   		//if (pos < arr[i].Count())
+		buf[arr[i][pos]].PushBack(arr[i]);
 
    	for (int i = 0; i < ALPH_SIZE; i++)
    		if (buf[i].Count() > 1)
@@ -262,40 +215,6 @@ void MSDSort(LightArray<String> &arr, int lo, int hi, int pos)//, vector<string>
     	k++;
     }
 }
-
-// void MSDSort(LightArray<String> &arr, int lo, int hi, int pos)//, vector<string>::iterator last, int offset) {
-// {
-//    	LightArray<LightArray<String> > buf(ALPH_SIZE);
-//     //vector<vector<string>> buf(ALPHA);
-
-//    	for (int i = lo; i < hi; i++)
-//    		if (arr[i].Count() > pos)
-//    			buf[arr[i][pos]].PushBack(arr[i]);
-
-//     // for (vector<string>::iterator i = first; i != last; ++i)
-//         // buf[static_cast<int>((*i)[offset])].push_back(*i);
-
-//    	for (int i = 0; i < ALPH_SIZE; i++)
-//    		if (buf[i].Count() > 1)
-//    			MSDSort(buf[i], 0, buf[i].Count(), pos + 1);
-//     // for (int i = 1; i < ALPHA; ++i) 
-//         // if (buf[i].size() > 1)
-//             // msd_sort(buf[i].begin(), buf[i].end(), offset + 1);
-    
-//     int k = 0;
-//     for (int i = lo; i < hi;)
-//     {
-//     	for (int j = 0; j < buf[k].Count(); j++)//buf[k])
-//     		arr[i++] = buf[k][j];
-//     	k++;
-//     }
-//     // int k = 0;
-//     // for (vector<string>::iterator i = first; i != last;) {
-//         // for (vector<string>::iterator j = buf[k].begin(); j != buf[k].end(); ++j)
-//             // *i++ = *j;
-//         // ++k;
-//     // }
-// }
 
 
 
@@ -341,16 +260,18 @@ LightArray<String> GetStringLightArray(FILE *f)
 	return arrStr;
 }
 
-//#define TEST
+#define TEST
 int main()
 {
-	vector<string> arr;
+	//vector<string> arr;
 	FILE *f;
 #ifdef TEST
-	f = fopen("E:\\ttt.txt", "r");
+	//f = fopen("./5_2.cpp", "r");
+	printf("a");
 #else
 	f = stdin;
 #endif
+	printf("%d", f);
 	LightArray<String> strArr = GetStringLightArray(f);
 	MSDSort(strArr);//, 0, strArr.Count() - 1, 0);
 	for (int i = 0; i < strArr.Count(); i++)
