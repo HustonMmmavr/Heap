@@ -37,30 +37,30 @@ const char* Exception::GetMessage() const
 
 ////////////////////////////////////////////////////////////////////////////////
 // LightArray (my vector)
+typedef long sizeT;
 template <typename T>
 class LightArray
 {
-	T* ptr;
-	sizeT allocatedSize;
-	sizeT elementsInBuffer;
-	//void Copy(const Lig);
+    T* ptr;
+    sizeT allocatedSize;
+    sizeT elementsInBuffer;
 public:
-	LightArray();
-	LightArray(sizeT allocatedSize);
-	LightArray(const LightArray& arr);
-	~LightArray();
-	void PushBack(const T& data);
-	void Resize();
-	sizeT Count() const { return elementsInBuffer; }
-	sizeT Allocated() const { return allocatedSize; }
-	const T* GetPointer() const;
-	void Sort(int comparator(const void *, const void *), sizeT b, sizeT e);
-	void Swap(T *a, T* b) { T temp = *a; *a = *b, *b = temp; }
-	const T& operator[] (sizeT i) const { return ptr[i]; }
-	T& operator[] (sizeT i) { return ptr[i]; }
-	LightArray& operator = (const LightArray& arr);
-	const T& AtIndex(sizeT i) const { return ptr[i]; }
-	T& AtIndex(sizeT i) { return ptr[i]; }
+    LightArray();
+    LightArray(sizeT allocatedSize);
+    LightArray(const LightArray& arr);
+    ~LightArray();
+    void PushBack(const T& data);
+    void Resize();
+    sizeT Count() const { return elementsInBuffer; }
+    sizeT Allocated() const { return allocatedSize; }
+    T* GetPointer();
+    void Sort(int comparator(const void *, const void *), sizeT b, sizeT e);
+    void Swap(T *a, T* b) { T temp = *a; *a = *b, *b = temp; }
+    const T& operator[] (sizeT i) const { return ptr[i]; }
+    T& operator[] (sizeT i) { return ptr[i]; }
+    LightArray& operator = (const LightArray& arr);
+    const T& AtIndex(sizeT i) const { return ptr[i]; }
+    T& AtIndex(sizeT i) { return ptr[i]; }
 
 };
 
@@ -68,101 +68,121 @@ public:
 template <typename T>
 LightArray<T>::LightArray()
 {
-	allocatedSize = 2;
-	ptr = new T[allocatedSize];
-	if (!ptr) ThrowException("Cant allocate memory");
-	elementsInBuffer = 0;
+    allocatedSize = 0;
+    ptr = NULL;
+    //ptr = new T[allocatedSize];
+    //if (!ptr) ThrowException("Cant allocate memory");
+    elementsInBuffer = 0;
 }
 
 template <typename T>
 LightArray<T>::LightArray(const LightArray<T>& arr)
 {
-	ptr = NULL;
-	*this = arr;
+    ptr = NULL;
+    *this = arr;
 }
 
 template <typename T>
 LightArray<T>::LightArray(sizeT sizeToAlloc)
 {
-	//if (sizeToAlloc < MIN_SIZE) sizeToAlloc = MIN_SIZE;
-	allocatedSize = sizeToAlloc;
-	ptr = new T[allocatedSize];
+    //if (sizeToAlloc < MIN_SIZE) sizeToAlloc = MIN_SIZE;
+    allocatedSize = sizeToAlloc;
+    if (allocatedSize == 0)
+    {
+        ptr = NULL;
+    }
+    else
+    {
+        ptr = new T[allocatedSize];
 
-	if (!ptr)
-		ThrowException("cant allocate");
-	elementsInBuffer = 0;
+        if (!ptr)
+            ThrowException("cant allocate");
+    }
+    elementsInBuffer = 0;
 }
 
 template <typename T>
 LightArray<T>::~LightArray()
 {
-	delete[] ptr;
+    delete[] ptr;
 }
 
 template <typename T>
 void LightArray<T>::PushBack(const T& data)
 {
-	if (elementsInBuffer == allocatedSize)
-		Resize();
-	ptr[elementsInBuffer++] = data;
+    if (elementsInBuffer == allocatedSize)
+        Resize();
+    ptr[elementsInBuffer++] = data;
 }
 
 template <typename T>
 void LightArray<T>::Resize()
 {
-	sizeT newSize = allocatedSize * MEMORY_STEP;
-	T *oldPtr = ptr;
-	T *newPtr = new T[newSize];
-	if (!newPtr) ThrowException("Cant reallcate");
-	for (int i = 0; i < allocatedSize; i++)
-		newPtr[i] = oldPtr[i];
-	delete[] oldPtr;
-	ptr = newPtr;
-	allocatedSize *= MEMORY_STEP;
+    if (allocatedSize == 0)
+    {
+        allocatedSize = 1;
+        ptr = new T[allocatedSize];
+        if (!ptr) ThrowException("err");
+        return;
+    }
+    sizeT newSize = allocatedSize * MEMORY_STEP;
+    T *oldPtr = ptr;
+    T *newPtr = new T[newSize];
+    if (!newPtr) ThrowException("Cant reallcate");
+    for (int i = 0; i < allocatedSize; i++)
+        newPtr[i] = oldPtr[i];
+    delete[] oldPtr;
+    ptr = newPtr;
+    allocatedSize *= MEMORY_STEP;
 }
 
 template <typename T>
-const T *LightArray<T>::GetPointer() const
+T *LightArray<T>::GetPointer()
 {
-	return ptr;
+    return ptr;
 }
 
 template <typename T>
 LightArray<T>& LightArray<T>::operator = (const LightArray<T>& arr)
 {
-	delete[] ptr;
-	allocatedSize = arr.allocatedSize;
-	elementsInBuffer = arr.elementsInBuffer;
-	ptr = new T[allocatedSize];
-	if (!ptr) ThrowException("Cant alloc");
-	for (int i = 0; i < elementsInBuffer; i++)
-		ptr[i] = arr.ptr[i];
-	memcpy(ptr, arr.ptr, elementsInBuffer * sizeof(T));
-	return *this;
+    delete[] ptr;
+    allocatedSize = arr.allocatedSize;
+    elementsInBuffer = arr.elementsInBuffer;
+    if (allocatedSize == 0)
+    {
+        ptr = NULL;
+        return *this;
+    }
+    ptr = new T[allocatedSize];
+    if (!ptr) ThrowException("Cant alloc");
+    for (int i = 0; i < elementsInBuffer; i++)
+        ptr[i] = arr.ptr[i];
+    //memcpy(ptr, arr.ptr, elementsInBuffer * sizeof(T));
+    return *this;
 }
 
 template <typename T>
 void LightArray<T>::Sort(int comparator(const void*, const void*), sizeT b, sizeT e)
 {
-	int l = b, r = e;
-	T piv = ptr[(l + r) / 2];
-	while (l <= r)
-	{
-		while (comparator(&ptr[l], &piv))
-			l++;
-		while (comparator(&piv, &ptr[r]))
-			r--;
-		if (l <= r)
-		{
-			Swap(&ptr[l], &ptr[r]);
-			l++, r--;
-		}
-	}
+    int l = b, r = e;
+    T piv = ptr[(l + r) / 2];
+    while (l <= r)
+    {
+        while (comparator(&ptr[l], &piv))
+            l++;
+        while (comparator(&piv, &ptr[r]))
+            r--;
+        if (l <= r)
+        {
+            Swap(&ptr[l], &ptr[r]);
+            l++, r--;
+        }
+    }
 
-	if (b < r)
-		Sort(comparator, b, r);
-	if (e > l)
-		Sort(comparator, l, e);
+    if (b < r)
+        Sort(comparator, b, r);
+    if (e > l)
+        Sort(comparator, l, e);
 }
 ///////////////////////////////////////////////////////////////////////
 
@@ -228,22 +248,21 @@ void MergeSort(LightArray<int> &arr, int left, int right)
 
 void MergeSort(LightArray<int> &a)
 {
-
+    MergeSort(a, 0, a.Count());
 }
 
 void PartSort(LightArray<int> &arr, int k)
 {
 	int n = arr.Count();
-	LightArray<int> partArr(k + 1);
+    MergeSort(arr, 0, k);
 	for (int i = 0; i < n; i += k)
 	{
-		//for (int j = 0; j < k; j++)
-		//{
-		//	if (i + j < n) partArr.PushBack(arr[i + j]);
-		//}
-		int left = i;
-		int right = left + k < n ? left + k + 1 : arr.Count();
-		MergeSort(arr, left, right);//i + k, arr.Count() - 1);
+		//int left =  i == 0 ? 0 : i + 1;
+		int right = i + k < n ? i + k : arr.Count();
+        //for (int i = left; i < right; i++)
+        //    printf("%d ", arr[i]);
+        //printf("\n");
+		MergeSort(arr, i, right);//i + k, arr.Count() - 1);
 	}
 
 }
@@ -254,22 +273,9 @@ int main()
 	{
 		int k;
 		LightArray<int> arr = ReadArray(&k);
-		//PartSort(arr, k);
-		MergeSort(arr, 0, arr.Count());
-		//vector<int> arr;
-		//LightArray<int> a;
-		//for (int i = 0; i < 16; i++)
-		//{
-		//	a.PushBack(rand() % 1000);
-		//}
-
-		//MergeSort(a, 0, a.Count() );
-		//LightArray<int> arr = ReadArray(&k);
+		PartSort(arr, k);
 		for (int i = 0; i < arr.Count(); i++)
 			printf("%d ", arr.AtIndex(i));
-
-		//getchar();
-		//getchar();
 		return 0;
 	}
 	catch (Exception &e)

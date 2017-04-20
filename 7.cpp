@@ -1,10 +1,3 @@
-// ConsoleApplication8.cpp: îïðåäåëÿåò òî÷êó âõîäà äëÿ êîíñîëüíîãî ïðèëîæåíèÿ.
-//
-
-// ConsoleApplication12.cpp: îïðåäåëÿåò òî÷êó âõîäà äëÿ êîíñîëüíîãî ïðèëîæåíèÿ.
-//
-
-//#include "stdafx.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,8 +7,6 @@ using namespace std;
 #define MEMORY_STEP 2
 typedef long sizeT;
 
-//////////////////////////////////////////////////////////////////////////
-// Exception
 class Exception
 {
 	char message[1024];
@@ -58,7 +49,6 @@ public:
     sizeT Count() const { return elementsInBuffer; }
     sizeT Allocated() const { return allocatedSize; }
     T* GetPointer();
-    void Sort(int comparator(const void *, const void *), sizeT b, sizeT e);
     void Swap(T *a, T* b) { T temp = *a; *a = *b, *b = temp; }
     const T& operator[] (sizeT i) const { return ptr[i]; }
     T& operator[] (sizeT i) { return ptr[i]; }
@@ -74,8 +64,6 @@ LightArray<T>::LightArray()
 {
     allocatedSize = 0;
     ptr = NULL;
-    //ptr = new T[allocatedSize];
-    //if (!ptr) ThrowException("Cant allocate memory");
     elementsInBuffer = 0;
 }
 
@@ -89,7 +77,6 @@ LightArray<T>::LightArray(const LightArray<T>& arr)
 template <typename T>
 LightArray<T>::LightArray(sizeT sizeToAlloc)
 {
-    //if (sizeToAlloc < MIN_SIZE) sizeToAlloc = MIN_SIZE;
     allocatedSize = sizeToAlloc;
     if (allocatedSize == 0)
     {
@@ -164,45 +151,8 @@ LightArray<T>& LightArray<T>::operator = (const LightArray<T>& arr)
     //memcpy(ptr, arr.ptr, elementsInBuffer * sizeof(T));
     return *this;
 }
-
-template <typename T>
-void LightArray<T>::Sort(int comparator(const void*, const void*), sizeT b, sizeT e)
-{
-    int l = b, r = e;
-    T piv = ptr[(l + r) / 2];
-    while (l <= r)
-    {
-        while (comparator(&ptr[l], &piv))
-            l++;
-        while (comparator(&piv, &ptr[r]))
-            r--;
-        if (l <= r)
-        {
-            Swap(&ptr[l], &ptr[r]);
-            l++, r--;
-        }
-    }
-
-    if (b < r)
-        Sort(comparator, b, r);
-    if (e > l)
-        Sort(comparator, l, e);
-}
 ///////////////////////////////////////////////////////////////////////
 
-LightArray<int> ReadArray(int *k)
-{
-	int n;
-	scanf("%d %d", &n, k);
-	LightArray<int> arr;
-	for (int i = 0; i < n; i++)
-	{
-		int b;
-		scanf("%d", &b);
-		arr.PushBack(b);
-	}
-	return arr;
-}
 
 template <typename T>
 void MedianOfThree(LightArray<T> &arr, int left, int right)
@@ -238,36 +188,21 @@ int Partition(LightArray<T> &arr, int left, int right)
 	return i;
 }
 
-template <typename T>
-int KStat(LightArray<int> &arr, int k)
+ void InsertionSort(LightArray<int> &arr, int left, int right)//SSsize_t size, int (*funcComparator)(const void*, const void*))
 {
-	if (k < 0 || k > arr.Count() - 1) ThrowException("Bad k");
-	int left = 0, right = arr.Count() - 1;
-
-	while (true)
-	{
-		int mid = Partition(arr, left, right);
-		if (k == mid)
-			return arr[k];
-		if (mid < k)
-			left = mid + 1;
-		else
-			right = mid - 1;// -1;
-	}
+    for (size_t i = 1; i < size; i++)
+    {
+        T temp = arr[i];
+        size_t j;
+        for (j = i; j > 0 && temp < arr[j-1]; j--)//funcComparator(&temp, &arr[j - 1]); j--)
+            arr[j] = arr[j-1];
+        arr[j] = temp;
+    }
 }
 
-int main()
+
+void QuickSort(LightArray<int> &arr)
 {
-	try
-	{
-		int k;
-		LightArray<int> arr = ReadArray(&k);
-		int res = KStat<int>(arr, k);
-		printf("%d", res);
-		return 0;
-	}
-	catch (Exception &e)
-	{
-		printf("%s", e.GetMessage());
-	}
+	stack<int> idx;
+	idx.
 }

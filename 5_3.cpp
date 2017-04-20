@@ -1,15 +1,12 @@
-// ConsoleApplication8.cpp: îïðåäåëÿåò òî÷êó âõîäà äëÿ êîíñîëüíîãî ïðèëîæåíèÿ.
-//
-
 // ConsoleApplication12.cpp: îïðåäåëÿåò òî÷êó âõîäà äëÿ êîíñîëüíîãî ïðèëîæåíèÿ.
 //
 
 //#include "stdafx.h"
+//#includBe <st
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <utility>
-using namespace std;
+#include <stdlib.h>
+#include <stdint.h>
 #define MIN_SIZE 16
 #define MEMORY_STEP 2
 typedef long sizeT;
@@ -190,84 +187,84 @@ void LightArray<T>::Sort(int comparator(const void*, const void*), sizeT b, size
 }
 ///////////////////////////////////////////////////////////////////////
 
-LightArray<int> ReadArray(int *k)
+LightArray<int> ReadArray()
 {
 	int n;
-	scanf("%d %d", &n, k);
 	LightArray<int> arr;
-	for (int i = 0; i < n; i++)
+	while(scanf("%d\n", &n) == 1)
 	{
-		int b;
-		scanf("%d", &b);
-		arr.PushBack(b);
+		arr.PushBack(n);
 	}
 	return arr;
 }
 
-template <typename T>
-void MedianOfThree(LightArray<T> &arr, int left, int right)
+int64_t Merge(LightArray<int> &arr, int left, int mid, int right)
 {
-	int mid = (right + left) / 2;
-	if (arr[left] > arr[right]) swap(arr[right], arr[left]);
-	if (arr[left] > arr[mid]) swap(arr[mid], arr[left]);
-	if (arr[mid] < arr[right]) swap(arr[mid], arr[right]);
-}
-
-template <typename T>
-int Partition(LightArray<T> &arr, int left, int right)
-{
-	MedianOfThree(arr, left, right);
-	T piv = arr[right];// - 1];
-	int i = 0;
-
-	while (i <= right && arr[i] <= piv) i++; // search group > piv
-	if (i >= right) return right;// -1;
-	int j = i + 1 ;
-
-	while (j < right)
+	int i1 = 0, i2 = 0;
+	LightArray<int> addArr(right - left );
+	int64_t res = 0;
+	int64_t m = (right - left)/2;
+	while ((left + i1 < mid) && (mid + i2 < right))
 	{
-		if (arr[j] > piv) j++;
+		if (arr[left + i1] <= arr[mid + i2])
+		{
+			addArr[i1 + i2] = arr[left + i1];
+			i1++;
+		}
 		else
 		{
-			swap(arr[j], arr[i]);
-			j++;
-			i++;
+			res += m - i1;
+			addArr[i1 + i2] = arr[mid + i2];
+			i2++;
 		}
 	}
-	swap(arr[i], arr[right]);
-	return i;
+
+	while (left + i1 < mid)
+	{
+		addArr[i1 + i2] = arr[left + i1];
+		i1++;
+	}
+
+	while (mid + i2 < right)
+	{
+		addArr[i1 + i2] = arr[mid + i2];
+		i2++;
+	}
+
+	for (int i = 0; i < i1 + i2; i++)
+	{
+		arr[left + i] = addArr[i];
+	}
+	return res;
 }
 
-template <typename T>
-int KStat(LightArray<int> &arr, int k)
+int64_t MergeSort(LightArray<int> &arr, int left, int right)
 {
-	if (k < 0 || k > arr.Count() - 1) ThrowException("Bad k");
-	int left = 0, right = arr.Count() - 1;
+	if (left + 1 >= right) return 0;
+	int64_t res = 0;
+	int mid = (left + right) / 2;
+	res += MergeSort(arr, left, mid);
+	res += MergeSort(arr, mid, right);
+	res += Merge(arr, left, mid, right);
+	return res;
+}
 
-	while (true)
-	{
-		int mid = Partition(arr, left, right);
-		if (k == mid)
-			return arr[k];
-		if (mid < k)
-			left = mid + 1;
-		else
-			right = mid - 1;// -1;
-	}
+int64_t MergeSort(LightArray<int> &a)
+{
+    return MergeSort(a, 0, a.Count());
 }
 
 int main()
 {
 	try
 	{
-		int k;
-		LightArray<int> arr = ReadArray(&k);
-		int res = KStat<int>(arr, k);
-		printf("%d", res);
+		LightArray<int> arr = ReadArray();
+		int64_t res = MergeSort(arr);
+		printf("%ld", res);
 		return 0;
 	}
 	catch (Exception &e)
 	{
 		printf("%s", e.GetMessage());
-	}
+	}	
 }
