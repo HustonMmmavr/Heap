@@ -71,8 +71,6 @@ LightArray<T>::LightArray()
 {
     allocatedSize = 0;
     ptr = NULL;
-    //ptr = new T[allocatedSize];
-    //if (!ptr) ThrowException("Cant allocate memory");
     elementsInBuffer = 0;
 }
 
@@ -86,7 +84,6 @@ LightArray<T>::LightArray(const LightArray<T>& arr)
 template <typename T>
 LightArray<T>::LightArray(sizeT sizeToAlloc)
 {
-    //if (sizeToAlloc < MIN_SIZE) sizeToAlloc = MIN_SIZE;
     allocatedSize = sizeToAlloc;
     if (allocatedSize == 0)
     {
@@ -158,33 +155,9 @@ LightArray<T>& LightArray<T>::operator = (const LightArray<T>& arr)
     if (!ptr) ThrowException("Cant alloc");
     for (int i = 0; i < elementsInBuffer; i++)
         ptr[i] = arr.ptr[i];
-    //memcpy(ptr, arr.ptr, elementsInBuffer * sizeof(T));
     return *this;
 }
 
-template <typename T>
-void LightArray<T>::Sort(int comparator(const void*, const void*), sizeT b, sizeT e)
-{
-    int l = b, r = e;
-    T piv = ptr[(l + r) / 2];
-    while (l <= r)
-    {
-        while (comparator(&ptr[l], &piv))
-            l++;
-        while (comparator(&piv, &ptr[r]))
-            r--;
-        if (l <= r)
-        {
-            Swap(&ptr[l], &ptr[r]);
-            l++, r--;
-        }
-    }
-
-    if (b < r)
-        Sort(comparator, b, r);
-    if (e > l)
-        Sort(comparator, l, e);
-}
 ///////////////////////////////////////////////////////////////////////
 
 LightArray<int> ReadArray()
@@ -203,7 +176,6 @@ int64_t Merge(LightArray<int> &arr, int left, int mid, int right)
 	int i1 = 0, i2 = 0;
 	LightArray<int> addArr(right - left );
 	int64_t res = 0;
-	int64_t m = (right - left)/2;
 	while ((left + i1 < mid) && (mid + i2 < right))
 	{
 		if (arr[left + i1] <= arr[mid + i2])
@@ -213,7 +185,7 @@ int64_t Merge(LightArray<int> &arr, int left, int mid, int right)
 		}
 		else
 		{
-			res += m - i1;
+			res += mid - i1 - left;
 			addArr[i1 + i2] = arr[mid + i2];
 			i2++;
 		}
