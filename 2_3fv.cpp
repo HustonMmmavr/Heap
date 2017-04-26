@@ -66,35 +66,35 @@ const char* Exception::GetMesssage() const
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-// Array (my vector)
+// LightArray (my vector)
 template <typename T>
-class Array
+class LightArray
 {
     T* ptr;
     sizeT allocatedSize;
     sizeT elementsInBuffer;
 public:
-    Array();
-    Array(sizeT allocatedSize);
-    Array(const Array& arr);
-    ~Array();
+    LightArray();
+    LightArray(sizeT allocatedSize);
+    LightArray(const LightArray& arr);
+    ~LightArray();
     void PushBack(const T& data);
     void Resize();
     sizeT Count() const {return elementsInBuffer;}
     sizeT Allocated() const {return allocatedSize;}
-    const T* GetPointer() const;
+    T* GetPointer();
     void Sort(int comparator(const void *, const void *), sizeT b, sizeT e);
     void Swap(T *a, T* b) { T temp = *a; *a = *b, *b = temp; }
     const T& operator[] (sizeT i) const { return ptr[i]; }
     T& operator[] (sizeT i) { return ptr[i]; }
-    Array& operator = (const Array& arr);
+    LightArray& operator = (const LightArray& arr);
     const T& AtIndex(sizeT i) const { return ptr[i]; }
     T& AtIndex(sizeT i) {return ptr[i];}
 
 };
 
 template <typename T>
-Array<T>::Array()
+LightArray<T>::LightArray()
 {
     allocatedSize = 2;
     ptr = new T[allocatedSize];
@@ -103,14 +103,14 @@ Array<T>::Array()
 }
 
 template <typename T>
-Array<T>::Array(const Array<T>& arr)
+LightArray<T>::LightArray(const LightArray<T>& arr)
 {
     ptr = NULL;
     *this = arr;
 }
 
 template <typename T>
-Array<T>::Array(sizeT sizeToAlloc)
+LightArray<T>::LightArray(sizeT sizeToAlloc)
 {
     if (sizeToAlloc < MIN_SIZE) sizeToAlloc = MIN_SIZE;
     allocatedSize = sizeToAlloc;
@@ -122,13 +122,13 @@ Array<T>::Array(sizeT sizeToAlloc)
 }
 
 template <typename T>
-Array<T>::~Array()
+LightArray<T>::~LightArray()
 {
     delete[] ptr;
 }
 
 template <typename T>
-void Array<T>::PushBack(const T& data)
+void LightArray<T>::PushBack(const T& data)
 {
     if (elementsInBuffer == allocatedSize)
         Resize();
@@ -136,7 +136,7 @@ void Array<T>::PushBack(const T& data)
 }
 
 template <typename T>
-void Array<T>::Resize()
+void LightArray<T>::Resize()
 {
     if (allocatedSize == 0) allocatedSize = 1;
     sizeT newSize = allocatedSize * MEMORY_STEP;
@@ -150,19 +150,19 @@ void Array<T>::Resize()
 }
 
 // template <typename T>
-// sizeT Array<T>::Count() const
+// sizeT LightArray<T>::Count() const
 // {
 // 	return elementsInBuffer;
 // }
 
 template <typename T>
-const T *Array<T>::GetPointer() const
+T *LightArray<T>::GetPointer()
 {
     return ptr;
 }
 
 template <typename T>
-Array<T>& Array<T>::operator = (const Array<T>& arr)
+LightArray<T>& LightArray<T>::operator = (const LightArray<T>& arr)
 {
     delete[] ptr;
     allocatedSize = arr.allocatedSize;
@@ -174,7 +174,7 @@ Array<T>& Array<T>::operator = (const Array<T>& arr)
 }
 
 template <typename T>
-void Array<T>::Sort(int comparator(const void*, const void*), sizeT b, sizeT e)
+void LightArray<T>::Sort(int comparator(const void*, const void*), sizeT b, sizeT e)
 {
     int l = b, r = e;
     T piv = ptr[(l + r) / 2];
@@ -199,12 +199,12 @@ void Array<T>::Sort(int comparator(const void*, const void*), sizeT b, sizeT e)
 ///////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////DefaultComporator
-// Heap (based on Array)
+// Heap (based on LightArray)
 template <typename T, template<typename > class Comparator = DefaultComparator >
 class Heap
 {
     sizeT elementsInHeap;
-    Array<T> *arr;
+    LightArray<T> *arr;
     IComparator<T> *comparator;
 private:
     void Swap(T& a, T& b) { arr->Swap(&a, &b); }
@@ -215,13 +215,13 @@ public:
     Heap();
     Heap(sizeT cnt, Comparator<T> *comparator = NULL);
     ~Heap();
-    void Init(const Array<T> &arr, Comparator<T> *comparator = NULL);
+    void Init(const LightArray<T> &arr, Comparator<T> *comparator = NULL);
     void SetComparator(Comparator<T> *comparator){ this->comparator = comparator;}
     void Print();
     sizeT CountInHeap() const { return elementsInHeap; }
     void Add(const T& element);
     void MakeHeap();
-    Array<T>& Array() const {return *arr;}
+    LightArray<T>& Array() const {return *arr;}
     T ExtractExtremum();
     const T& Extremum() const;
 };
@@ -231,7 +231,7 @@ template <typename T, template<typename T> class Comparator>
 Heap<T, Comparator>::Heap()
 {
     comparator = NULL;
-    arr = new Array<T>();
+    arr = new LightArray<T>();
     if (!arr) ThrowException("Cant alloc arr");
     comparator = new Comparator<T>();
     if(!comparator) ThrowException("Cant alloc");
@@ -251,7 +251,7 @@ void Heap<T, Comparator>::Add(const T& element)
 }
 
 template <typename T, template<typename T> class Comparator>
-void Heap<T, Comparator>::Init(const Array<T> &arr, Comparator<T> *comparator)
+void Heap<T, Comparator>::Init(const LightArray<T> &arr, Comparator<T> *comparator)
 {
     if (comparator == NULL)
     {
@@ -277,7 +277,7 @@ template <typename T, template<typename T> class Comparator >
 Heap<T, Comparator>::Heap(sizeT cnt, Comparator<T> *comparator)
 {
     if (comparator == NULL) this->comparator = new Comparator<T>();
-    arr = new Array<T>(cnt);
+    arr = new LightArray<T>(cnt);
     if (!arr) ThrowException("Cant alloc");
     elementsInHeap = 0;
 }
@@ -361,11 +361,11 @@ T Heap<T, Comparator>::ExtractExtremum()
     return extremum;
 }
 
-Array<Train> ReadTrains()
+LightArray<Train> ReadTrains()
 {
     int n;
     scanf("%d", &n);
-    Array<Train> arr(n);
+    LightArray<Train> arr(n);
 
     for (int i = 0; i < n; i++)
     {
@@ -376,7 +376,7 @@ Array<Train> ReadTrains()
     return arr;
 }
 
-sizeT GetMinEnd(Array<Train> &trainsArr)//Heap<Train> &trains)
+sizeT GetMinEnd(LightArray<Train> &trainsArr)//Heap<Train> &trains)
 {
     Heap<Train, TrainComparator> trainsHeap(trainsArr.Count());
 //	trainsHeap.SetComparator(comparator);
@@ -400,9 +400,9 @@ sizeT GetMinEnd(Array<Train> &trainsArr)//Heap<Train> &trains)
 
 int main()
 {
-    Array<Train> trains = ReadTrains();
+    LightArray<Train> trains = ReadTrains();
 //    Heap<int> h;
-//    Array<int> b;
+//    LightArray<int> b;
 //    for (int i = 0; i < 18; i++)
 //    {
 //        int rnd = rand() % 1000;
@@ -414,7 +414,7 @@ int main()
 //    //h.MakeHeap();
 //    h.Init(b);
 //    h.MakeHeap();
-//    Array<int> *a = &h.Array();
+//    LightArray<int> *a = &h.Array();
 //    for (int i = 0; i < 18; i++)
 //        printf("%d ", a->AtIndex(i));
     int count = GetMinEnd(trains);

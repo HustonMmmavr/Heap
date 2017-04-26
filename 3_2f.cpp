@@ -1,4 +1,4 @@
-﻿// ConsoleApplication10.cpp: определяет точку входа для консольного приложения.
+// ConsoleApplication10.cpp: определяет точку входа для консольного приложения.
 //
 
 //#include "stdafx.h"
@@ -332,7 +332,6 @@ void LightArray<T>::Sort(int comparator(const void*, const void*), sizeT b, size
 
 //template <typename T, template<typename, bool > class Comparator = DefaultComparator, bool less = false>//<T, less> >
 template <typename T, bool less = false, template<typename, bool> class Comparator = DefaultComparator>
-
 class Heap
 {
 	sizeT elementsInHeap;

@@ -40,19 +40,19 @@ const char* Exception::GetMessage() const
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-// LightArray (my vector)
+// Array (my vector)
 typedef long sizeT;
 template <typename T>
-class LightArray
+class Array
 {
     T* ptr;
     sizeT allocatedSize;
     sizeT elementsInBuffer;
 public:
-    LightArray();
-    LightArray(sizeT allocatedSize);
-    LightArray(const LightArray& arr);
-    ~LightArray();
+    Array();
+    Array(sizeT allocatedSize);
+    Array(const Array& arr);
+    ~Array();
     void PushBack(const T& data);
     void Resize();
     sizeT Count() const { return elementsInBuffer; }
@@ -62,7 +62,7 @@ public:
     void Swap(T *a, T* b) { T temp = *a; *a = *b, *b = temp; }
     const T& operator[] (sizeT i) const { return ptr[i]; }
     T& operator[] (sizeT i) { return ptr[i]; }
-    LightArray& operator = (const LightArray& arr);
+    Array& operator = (const Array& arr);
     const T& AtIndex(sizeT i) const { return ptr[i]; }
     T& AtIndex(sizeT i) { return ptr[i]; }
 
@@ -70,7 +70,7 @@ public:
 
 
 template <typename T>
-LightArray<T>::LightArray()
+Array<T>::Array()
 {
     allocatedSize = 0;
     ptr = NULL;
@@ -80,14 +80,14 @@ LightArray<T>::LightArray()
 }
 
 template <typename T>
-LightArray<T>::LightArray(const LightArray<T>& arr)
+Array<T>::Array(const Array<T>& arr)
 {
     ptr = NULL;
     *this = arr;
 }
 
 template <typename T>
-LightArray<T>::LightArray(sizeT sizeToAlloc)
+Array<T>::Array(sizeT sizeToAlloc)
 {
     //if (sizeToAlloc < MIN_SIZE) sizeToAlloc = MIN_SIZE;
     allocatedSize = sizeToAlloc;
@@ -106,13 +106,13 @@ LightArray<T>::LightArray(sizeT sizeToAlloc)
 }
 
 template <typename T>
-LightArray<T>::~LightArray()
+Array<T>::~Array()
 {
     delete[] ptr;
 }
 
 template <typename T>
-void LightArray<T>::PushBack(const T& data)
+void Array<T>::PushBack(const T& data)
 {
     if (elementsInBuffer == allocatedSize)
         Resize();
@@ -120,7 +120,7 @@ void LightArray<T>::PushBack(const T& data)
 }
 
 template <typename T>
-void LightArray<T>::Resize()
+void Array<T>::Resize()
 {
     if (allocatedSize == 0)
     {
@@ -141,13 +141,13 @@ void LightArray<T>::Resize()
 }
 
 template <typename T>
-T *LightArray<T>::GetPointer()
+T *Array<T>::GetPointer()
 {
     return ptr;
 }
 
 template <typename T>
-LightArray<T>& LightArray<T>::operator = (const LightArray<T>& arr)
+Array<T>& Array<T>::operator = (const Array<T>& arr)
 {
     delete[] ptr;
     allocatedSize = arr.allocatedSize;
@@ -166,7 +166,7 @@ LightArray<T>& LightArray<T>::operator = (const LightArray<T>& arr)
 }
 
 template <typename T>
-void LightArray<T>::Sort(int comparator(const void*, const void*), sizeT b, sizeT e)
+void Array<T>::Sort(int comparator(const void*, const void*), sizeT b, sizeT e)
 {
     int l = b, r = e;
     T piv = ptr[(l + r) / 2];
@@ -190,11 +190,11 @@ void LightArray<T>::Sort(int comparator(const void*, const void*), sizeT b, size
 }
 ///////////////////////////////////////////////////////////////////////
 
-LightArray<int> ReadArray(int *k)
+Array<int> ReadArray(int *k)
 {
 	int n;
 	scanf("%d %d", &n, k);
-	LightArray<int> arr;
+	Array<int> arr;
 	for (int i = 0; i < n; i++)
 	{
 		int b;
@@ -205,24 +205,26 @@ LightArray<int> ReadArray(int *k)
 }
 
 template <typename T>
-void MedianOfThree(LightArray<T> &arr, int left, int right)
+int MedianOfThree(Array<T> &arr, int left, int right)
 {
 	int mid = (right + left) / 2;
-	if (arr[left] > arr[right]) swap(arr[right], arr[left]);
-	if (arr[left] > arr[mid]) swap(arr[mid], arr[left]);
-	if (arr[mid] < arr[right]) swap(arr[mid], arr[right]);
+	if (arr[left] > arr[right]) swap(right, left);
+	if (arr[left] > arr[mid]) swap(left, mid);
+	if (arr[mid] > arr[right]) swap(mid, right);//arr[mid], arr[right]);
+	return mid;
 }
 
 template <typename T>
-int Partition(LightArray<T> &arr, int left, int right)
+int Partition(Array<T> &arr, int left, int right)
 {
-	MedianOfThree(arr, left, right);
+	int mid = MedianOfThree(arr, left, right);
+	swap(arr[mid], arr[right]);
 	T piv = arr[right];// - 1];
-	int i = 0;
+	int i = left;
 
-	while (i <= right && arr[i] <= piv) i++; // search group > piv
-	if (i >= right) return right;// -1;
-	int j = i + 1 ;
+	while (i < right && arr[i] < piv) i++; // search group > piv
+	if (i >= right) return right;
+	int j = i + 1;
 
 	while (j < right)
 	{
@@ -239,7 +241,7 @@ int Partition(LightArray<T> &arr, int left, int right)
 }
 
 template <typename T>
-int KStat(LightArray<int> &arr, int k)
+int KStat(Array<int> &arr, int k)
 {
 	if (k < 0 || k > arr.Count() - 1) ThrowException("Bad k");
 	int left = 0, right = arr.Count() - 1;
@@ -261,7 +263,7 @@ int main()
 	try
 	{
 		int k;
-		LightArray<int> arr = ReadArray(&k);
+		Array<int> arr = ReadArray(&k);
 		int res = KStat<int>(arr, k);
 		printf("%d", res);
 		return 0;
